@@ -1,0 +1,20 @@
+{
+	"name": "12_join",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/explorer"
+		},
+		"content": {
+			"query": "USE electric_vehicle_explorer;\n\n-- Show the number of types of electric vehicles\nSELECT\n    electric_vehicle_type,\n    COUNT(1) AS number_of_vehicle\nFROM\n    OPENROWSET(\n        BULK 'abfss://electric-vehicle-data@asynapsealds.dfs.core.windows.net/bronze/vehicle.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) WITH(\n        vehiche_type_id      SMALLINT 8\n    ) AS vehicle\n    JOIN\n    OPENROWSET(\n        BULK 'vehicle_type.json',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        FIELDTERMINATOR = '0x0b',\n        FIELDQUOTE = '0x0b'\n    ) \n    WITH(\n        jsonDoc NVARCHAR(MAX)\n    ) AS vehicle_type\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH(\n        vehicleType SMALLINT,\n        electric_vehicle_type VARCHAR(50) '$.electricVehicleType'\n    )\nON vehicle.vehiche_type_id = vehicleType\nGROUP BY electric_vehicle_type\nORDER BY electric_vehicle_type;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_explorer",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

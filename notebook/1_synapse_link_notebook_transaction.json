@@ -1,0 +1,200 @@
+{
+	"name": "1_synapse_link_notebook_transaction",
+	"properties": {
+		"folder": {
+			"name": "synapse_link"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkpool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "52d57482-4b5d-4978-a83a-3c417f81f538"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1",
+				"state": {
+					"2e1a9c18-0fe0-4ded-bef5-bff06416bd6f": {
+						"type": "Synapse.DataFrame",
+						"sync_state": {
+							"table": {
+								"rows": [
+									{
+										"0": "muwxAOFl7fWDhB4AAAAAAA==",
+										"1": "1746313984",
+										"2": "3",
+										"3": "3",
+										"4": "2",
+										"5": "274800718",
+										"6": "2024-01-13 01:02:45",
+										"7": "096dae6a-c328-453f-88d8-cd01bdc50d40",
+										"8": "\"e00330b6-0000-0300-0000-6816a3000000\""
+									},
+									{
+										"0": "muwxAOFl7fWEhB4AAAAAAA==",
+										"1": "1746313995",
+										"2": "4",
+										"3": "4",
+										"4": "2",
+										"5": "260758165",
+										"6": "2024-01-26 15:33:44",
+										"7": "c194ad33-1d38-4a49-bf27-6395da744317",
+										"8": "\"e003f9b7-0000-0300-0000-6816a30b0000\""
+									},
+									{
+										"0": "muwxAOFl7fWFhB4AAAAAAA==",
+										"1": "1746314005",
+										"2": "5",
+										"3": "5",
+										"4": "3",
+										"5": "236581355",
+										"6": "2024-01-09 04:11:38",
+										"7": "e7512172-74b7-4ebe-8e59-f260519a73f1",
+										"8": "\"e0039cb9-0000-0300-0000-6816a3150000\""
+									},
+									{
+										"0": "muwxAOFl7fWChB4AAAAAAA==",
+										"1": "1746312027",
+										"2": "2",
+										"3": "2",
+										"4": "1",
+										"5": "478093654",
+										"6": "2024-01-08 22:41:26",
+										"7": "80f2c546-4a9c-4841-b4ba-5bc7c24e27be",
+										"8": "\"df0389f0-0000-0300-0000-68169b5b0000\""
+									}
+								],
+								"schema": [
+									{
+										"key": "0",
+										"name": "_rid",
+										"type": "string"
+									},
+									{
+										"key": "1",
+										"name": "_ts",
+										"type": "bigint"
+									},
+									{
+										"key": "2",
+										"name": "vehicleId",
+										"type": "bigint"
+									},
+									{
+										"key": "3",
+										"name": "locationId",
+										"type": "bigint"
+									},
+									{
+										"key": "4",
+										"name": "propietaryId",
+										"type": "bigint"
+									},
+									{
+										"key": "5",
+										"name": "dolVehicleId",
+										"type": "string"
+									},
+									{
+										"key": "6",
+										"name": "registrationDate",
+										"type": "string"
+									},
+									{
+										"key": "7",
+										"name": "id",
+										"type": "string"
+									},
+									{
+										"key": "8",
+										"name": "_etag",
+										"type": "string"
+									}
+								],
+								"truncated": false
+							},
+							"isSummary": false,
+							"language": "scala",
+							"wranglerEntryContext": {
+								"dataframeType": "pyspark"
+							}
+						},
+						"persist_state": {
+							"view": {
+								"type": "details",
+								"chartOptions": {
+									"chartType": "bar",
+									"aggregationType": "sum",
+									"categoryFieldKeys": [
+										"0"
+									],
+									"seriesFieldKeys": [
+										"1"
+									],
+									"isStacked": false
+								}
+							}
+						}
+					}
+				}
+			},
+			"enableDebugMode": false,
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/94b6da88-5799-42dc-bf32-094be4165467/resourceGroups/synapse-rg/providers/Microsoft.Synapse/workspaces/a-synapse-ws/bigDataPools/sparkpool",
+				"name": "sparkpool",
+				"type": "Spark",
+				"endpoint": "https://a-synapse-ws.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkpool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.4",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"# Read from Cosmos DB analytical store into a Spark DataFrame and display 10 rows from the DataFrame\n",
+					"# To select a preferred list of regions in a multi-region Cosmos DB account, add .option(\"spark.cosmos.preferredRegions\", \"<Region1>,<Region2>\")\n",
+					"\n",
+					"df = spark.read\\\n",
+					"    .format(\"cosmos.olap\")\\\n",
+					"    .option(\"spark.synapse.linkedService\", \"ls_mongo_db_electric_vehicle_data\")\\\n",
+					"    .option(\"spark.cosmos.container\", \"Transaction\")\\\n",
+					"    .load()\n",
+					"\n",
+					"display(df.limit(10))"
+				],
+				"execution_count": 2
+			}
+		]
+	}
+}

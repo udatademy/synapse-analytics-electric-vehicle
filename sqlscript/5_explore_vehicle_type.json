@@ -1,0 +1,20 @@
+{
+	"name": "5_explore_vehicle_type",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/explorer"
+		},
+		"content": {
+			"query": "USE electric_vehicle_explorer;\n\nSELECT CAST(JSON_VALUE(jsonDoc, '$.vehicleType') AS SMALLINT) vehicle_type,\n        CAST(JSON_VALUE(jsonDoc, '$.electricVehicleType') AS VARCHAR(50)) electric_vehicle_type\nFROM OPENROWSET(\n    BULK 'vehicle_type.json',\n    DATA_SOURCE = 'electric_vehicle_data_bronze',\n    FORMAT = 'CSV',\n    FIELDTERMINATOR = '0x0b',\n    FIELDQUOTE = '0x0b',\n    ROWTERMINATOR = '0x0a'\n) \nWITH(\n    jsonDoc NVARCHAR(MAX)\n) AS vehicle_type;\n\n\nEXEC sp_describe_first_result_set N'SELECT CAST(JSON_VALUE(jsonDoc, ''$.vehicleType'') AS SMALLINT) vehicle_type,\n        CAST(JSON_VALUE(jsonDoc, ''$.electricVehicleType'') AS VARCHAR(50)) electric_vehicle_type\nFROM OPENROWSET(\n    BULK ''vehicle_type.json'',\n    DATA_SOURCE = ''electric_vehicle_data_bronze'',\n    FORMAT = ''CSV'',\n    FIELDTERMINATOR = ''0x0b'',\n    FIELDQUOTE = ''0x0b'',\n    ROWTERMINATOR = ''0x0a''\n) \nWITH(\n    jsonDoc NVARCHAR(MAX)\n) AS vehicle_type;'\n\n\n\nSELECT vehicleType, electric_vehicle_type\nFROM OPENROWSET(\n    BULK 'vehicle_type.json',\n    DATA_SOURCE = 'electric_vehicle_data_bronze',\n    FORMAT = 'CSV',\n    FIELDTERMINATOR = '0x0b',\n    FIELDQUOTE = '0x0b'\n) \nWITH(\n    jsonDoc NVARCHAR(MAX)\n) AS vehicle_type\nCROSS APPLY OPENJSON(jsonDoc)\nWITH(\n    vehicleType SMALLINT,\n    electric_vehicle_type VARCHAR(50) '$.electricVehicleType'\n);\n\n\n----------------------------------------\n-- Reading data from JSON with arrays --\n----------------------------------------\n-- USE json_value to explore the array\nSELECT CAST(JSON_VALUE(jsonDoc, '$.vehicleType') AS SMALLINT) vehicle_type,\n        CAST(JSON_VALUE(jsonDoc, '$.electricVehicleType[0].value') AS VARCHAR(50)) electric_vehicle_type_0,\n        CAST(JSON_VALUE(jsonDoc, '$.electricVehicleType[1].value') AS VARCHAR(50)) electric_vehicle_type_1\nFROM OPENROWSET(\n    BULK 'vehicle_type_array.json',\n    DATA_SOURCE = 'electric_vehicle_data_bronze',\n    FORMAT = 'CSV',\n    FIELDTERMINATOR = '0x0b',\n    FIELDQUOTE = '0x0b',\n    ROWTERMINATOR = '0x0a'\n) \nWITH(\n    jsonDoc NVARCHAR(MAX)\n) AS vehicle_type;\n\n-- USE openjson to explore the array\nSELECT vehicleType, electricVehicleType_value\nFROM OPENROWSET(\n    BULK 'vehicle_type_array.json',\n    DATA_SOURCE = 'electric_vehicle_data_bronze',\n    FORMAT = 'CSV',\n    FIELDTERMINATOR = '0x0b',\n    FIELDQUOTE = '0x0b',\n    ROWTERMINATOR = '0x0a'\n) \nWITH(\n    jsonDoc NVARCHAR(MAX)\n) AS vehicle_type\nCROSS APPLY OPENJSON(jsonDoc)\nWITH(\n    vehicleType SMALLINT,\n    electricVehicleType NVARCHAR(MAX) AS JSON\n)\nCROSS APPLY OPENJSON(electricVehicleType)\nWITH(\n    sub_type SMALLINT,\n    electricVehicleType_value VARCHAR(50) '$.value'\n);\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_explorer",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

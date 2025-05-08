@@ -1,0 +1,20 @@
+{
+	"name": "10_function",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/explorer"
+		},
+		"content": {
+			"query": "USE electric_vehicle_explorer;\n\n\nSELECT\n    MIN(electric_range) AS min_electric_range,\n    MAX(electric_range) AS max_electric_range,\n    AVG(electric_range) AS avg_electric_range,\n    COUNT(1) AS total_number_of_electric_range,\n    COUNT(electric_range) AS not_null_total_number_of_electric_range\nFROM\n    OPENROWSET(\n        BULK 'abfss://electric-vehicle-data@asynapsealds.dfs.core.windows.net/bronze/vehicle.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) WITH(\n        vehicle_id           INT 1,\n        vin                  VARCHAR(10) 2,\n        model_year           SMALLINT 3,\n        make                 VARCHAR(25) 4,\n        model                VARCHAR(25) 5,\n        electric_range       SMALLINT 6,\n        base_MSRP            INT 7,\n        vehiche_type_id      SMALLINT 8,\n        cafv_eligibility_id  SMALLINT 9,\n        vehicle_location     VARCHAR(30) 10\n    ) AS [result]\nWHERE electric_range > 0 AND make = 'TESLA';\n\n\n\n\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'abfss://electric-vehicle-data@asynapsealds.dfs.core.windows.net/bronze/vehicle.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) WITH(\n        vehicle_id           INT 1,\n        vin                  VARCHAR(10) 2,\n        model_year           SMALLINT 3,\n        make                 VARCHAR(25) 4,\n        model                VARCHAR(25) 5,\n        electric_range       SMALLINT 6,\n        base_MSRP            INT 7,\n        vehiche_type_id      SMALLINT 8,\n        cafv_eligibility_id  SMALLINT 9,\n        vehicle_location     VARCHAR(30) 10\n    ) AS [result]\nWHERE electric_range > 20;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_explorer",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

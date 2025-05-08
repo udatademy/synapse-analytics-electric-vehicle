@@ -1,0 +1,20 @@
+{
+	"name": "02_usp_gold_quantity_of_vehicle_by_type",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/ldw/usp"
+		},
+		"content": {
+			"query": "USE electric_vehicle_ldw\nGO\n\nCREATE OR ALTER PROCEDURE gold.usp_gold_quantity_of_vehicle_by_type\n@year VARCHAR(4),\n@month VARCHAR(2)\nAS\nBEGIN\n\n    DECLARE @create_sql_stmt NVARCHAR(MAX),\n            @drop_sql_stmt NVARCHAR(MAX);\n\n    SET @create_sql_stmt = '\n        CREATE EXTERNAL TABLE gold.quantity_of_vehicle_by_type_' + @year + '_' + @month + '\n        WITH\n        (\n            DATA_SOURCE = electric_vehicle_src,\n            LOCATION = ''gold/quantity_of_vehicle_by_type/year=' + @year + '/month=' + @month + ''',\n            FILE_FORMAT = parquet_file_format\n        )\n        AS\n        SELECT c.year, c.month,\n                v.make,\n                vt.electric_vehicle_type,\n                COUNT(1) AS vehicle_register_count\n        FROM silver.vw_vehicle_registration vr\n        INNER JOIN silver.vehicle v ON (vr.vehicle_id = v.vehicle_id)\n        INNER JOIN silver.vehicle_type vt ON (vt.vehicle_type = v.vehiche_type_id)\n        INNER JOIN silver.calendar c ON (CAST(vr.registration_date AS DATE) = c.date)\n        WHERE c.year = ''' + @year + ''' AND  c.month = ''' + @month + '''\n        GROUP BY c.year, c.month, v.make, vt.electric_vehicle_type\n    ';\n\n    PRINT(@create_sql_stmt)\n\n    EXEC sp_executesql @create_sql_stmt;\n\n    SET @drop_sql_stmt = \n        'DROP EXTERNAL TABLE gold.quantity_of_vehicle_by_type_' + @year + '_' + @month;\n\n    PRINT(@drop_sql_stmt)\n\n    EXEC sp_executesql @drop_sql_stmt;\n\nEND\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

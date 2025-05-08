@@ -1,0 +1,20 @@
+{
+	"name": "1_synapse_link_query_transaction",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/synapse_link"
+		},
+		"content": {
+			"query": "IF (NOT EXISTS(SELECT * FROM sys.credentials WHERE name = 'a-synapse-cosmos-db'))\n    CREATE CREDENTIAL [a-synapse-cosmos-db]\n    WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = ''\nGO\n\nSELECT TOP 100 *\nFROM OPENROWSET(​PROVIDER = 'CosmosDB',\n                CONNECTION = 'Account=a-synapse-cosmos-db;Database=electricvehicledb',\n                OBJECT = 'Transaction',\n                SERVER_CREDENTIAL = 'a-synapse-cosmos-db'\n) AS [Transaction]\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "7_explore_vehicle_registration_csv",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/explorer"
+		},
+		"content": {
+			"query": "USE electric_vehicle_explorer;\n\n-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=2024/month=01/vehicle_registration_2024-01.csv',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result];\n\n-- Select data from a folder\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=2024/month=01/*.csv',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result];\n\n-- Select data from subfolders\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=2024/**',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result];\n\n-- Get data from more than one file.\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK ('vehicle_registration_csv/year=2024/month=01/*',\n                'vehicle_registration_csv/year=2024/month=03/*'),\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result];\n\n-- Use more than 1 wildcard character.\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=*/month=*/*',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result];\n\n\n-- File metadata function filename()\nSELECT\n    result.filename() AS file_name,\n    COUNT(1) AS record_count\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=*/month=*/*',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\nGROUP BY result.filename()\nORDER BY result.filename();\n\n-- Limit Data using filename()\nSELECT\n    result.filename() AS file_name,\n    COUNT(1) AS record_count\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=*/month=*/*',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\nWHERE result.filename() IN ('vehicle_registration_2024-01.csv', 'vehicle_registration_2025-01.csv')\nGROUP BY result.filename()\nORDER BY result.filename();\n\n-- Use filepath() function.\nSELECT\n    result.filepath(1) AS year,\n    result.filepath(2) AS month,\n    COUNT(1) AS record_count\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=*/month=*/*',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\nGROUP BY result.filepath(1), result.filepath(2)\nORDER BY result.filepath(1), result.filepath(2);\n\n-- Use filepath() in the WHERE clause.\nSELECT\n    result.filepath(1) AS year,\n    result.filepath(2) AS month,\n    COUNT(1) AS record_count\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_csv/year=*/month=*/*',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\nWHERE result.filepath(1) = '2024'\n        AND result.filepath(2) IN ('06', '07', '08')\nGROUP BY result.filepath(1), result.filepath(2)\nORDER BY result.filepath(1), result.filepath(2);\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_explorer",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

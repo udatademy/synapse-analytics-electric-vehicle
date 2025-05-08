@@ -1,0 +1,20 @@
+{
+	"name": "8_explore_vehicle_registration_parquet",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/explorer"
+		},
+		"content": {
+			"query": "USE electric_vehicle_explorer;\n\n-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_parquet/year=2024/month=01/',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'PARQUET'\n    ) AS [result];\n\n-- Identify the interred data types\nEXEC sp_describe_first_result_set N'SELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK ''vehicle_registration_parquet/year=2024/month=01/'',\n        DATA_SOURCE = ''electric_vehicle_data_bronze'',\n        FORMAT = ''PARQUET''\n    ) AS [result];'\n\n-- Define Columns and data types\nSELECT\n     *\nFROM\n    OPENROWSET(\n        BULK 'vehicle_registration_parquet/year=2024/month=01/',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'PARQUET'\n    )WITH(\n        vehicleId           INT,\n        registrationDate    DATETIME2(7)\n    ) AS [result];\n\n\n/*\nAssignment\n-------------\n1) Query from folders using wildcard characters.\n2) Use filename function.\n3) Query from subfolders.\n4) Use filepath function to select only from certain partitions.\n*/\n\n\n-- 1) Query from folders using wildcard characters\nSELECT TOP 100 *\nFROM OPENROWSET(\n        BULK 'vehicle_registration_parquet/year=2024/month=01/*.parquet',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'PARQUET'\n    ) AS vr_data;\n\n-- 2) Use filename function\nSELECT TOP 100\n    vr_data.filename() AS file_name,\n    vr_data.*\nFROM OPENROWSET(\n        BULK 'vehicle_registration_parquet/year=2024/month=01/*.parquet',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'PARQUET'\n    ) AS vr_data;\n\n-- 3) Query from subfolders\nSELECT TOP 100\n    vr_data.filepath() AS file_path,\n    vr_data.*\nFROM OPENROWSET(\n        BULK 'vehicle_registration_parquet/**',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'PARQUET'\n    ) AS vr_data;\n\n-- 4) Use filepath function to select only from certain partitions\nSELECT vr_data.filepath(1) AS year,\n        vr_data.filepath(2) AS month,\n        count(1) AS record_count\nFROM OPENROWSET(\n        BULK 'vehicle_registration_parquet/year=*/month=*/*.parquet',\n        DATA_SOURCE = 'electric_vehicle_data_bronze',\n        FORMAT = 'PARQUET'\n    ) AS vr_data\nWHERE vr_data.filepath(1) = '2024'\n    AND vr_data.filepath(2) IN ('06', '07', '08')\nGROUP BY vr_data.filepath(1), vr_data.filepath(2)\nORDER BY vr_data.filepath(1), vr_data.filepath(2);\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_explorer",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

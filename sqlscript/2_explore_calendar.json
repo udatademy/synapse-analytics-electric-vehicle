@@ -1,0 +1,20 @@
+{
+	"name": "2_explore_calendar",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/explorer"
+		},
+		"content": {
+			"query": "USE electric_vehicle_explorer;\n\nSELECT *\nFROM OPENROWSET(\n    BULK 'calendar.csv',\n    DATA_SOURCE = 'electric_vehicle_data_bronze',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE,\n    FIELDTERMINATOR = ';'\n) AS calendar;\n\nEXEC sp_describe_first_result_set N'SELECT *\nFROM OPENROWSET(\n    BULK ''calendar.csv'',\n    DATA_SOURCE = ''electric_vehicle_data_bronze'',\n    FORMAT = ''CSV'',\n    PARSER_VERSION = ''2.0'',\n    HEADER_ROW = TRUE,\n    FIELDTERMINATOR = '';''\n) AS calendar;';\n\nSELECT *\nFROM OPENROWSET(\n    BULK 'calendar.csv',\n    DATA_SOURCE = 'electric_vehicle_data_bronze',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE,\n    FIELDTERMINATOR = ';'\n) WITH(\n    date_key        INT 1,\n    date            DATE 2,\n    year            SMALLINT 3,\n    month           TINYINT 4,\n    day             TINYINT 5,\n    month_name      VARCHAR(10) 6,\n    day_name        VARCHAR(10) 7,\n    day_of_year     SMALLINT 8,\n    week_of_month   TINYINT 9,\n    week_of_year    TINYINT 10\n) AS calendar;\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_explorer",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

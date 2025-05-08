@@ -1,0 +1,20 @@
+{
+	"name": "02_create_bronze_views",
+	"properties": {
+		"folder": {
+			"name": "electric_vechicle/ldw/virtualization"
+		},
+		"content": {
+			"query": "USE electric_vehicle_ldw\nGO\n\n-- Create view for \"vw_cafv_eligibility\" file\nDROP VIEW IF EXISTS bronze.vw_cafv_eligibility\nGO\n\nCREATE VIEW bronze.vw_cafv_eligibility\nAS\n    SELECT cafv_eligibility_id, classification\n    FROM OPENROWSET(\n        BULK 'bronze/cafv_eligibility.json',\n        DATA_SOURCE = 'electric_vehicle_src',\n        FORMAT = 'CSV',\n        FIELDTERMINATOR = '0x0b',\n        FIELDQUOTE = '0x0b',\n        ROWTERMINATOR = '0x0b'\n    ) \n    WITH(\n        jsonDoc NVARCHAR(MAX)\n    ) AS cafv_eligibility\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH(\n        cafv_eligibility_id SMALLINT '$.cafvEligibility',\n        classification      VARCHAR(100)\n    )\nGO\n\nSELECT * FROM bronze.vw_cafv_eligibility\nGO\n\n\n-- Create view for \"vehicle_type\" file\nDROP VIEW IF EXISTS bronze.vw_vehicle_type\nGO\n\nCREATE VIEW bronze.vw_vehicle_type\nAS\n    SELECT vehicleType, electric_vehicle_type\n    FROM OPENROWSET(\n        BULK 'bronze/vehicle_type.json',\n        DATA_SOURCE = 'electric_vehicle_src',\n        FORMAT = 'CSV',\n        FIELDTERMINATOR = '0x0b',\n        FIELDQUOTE = '0x0b'\n    )\n    WITH(\n        jsonDoc NVARCHAR(MAX)\n    ) AS vehicle_type\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH(\n        vehicleType SMALLINT,\n        electric_vehicle_type VARCHAR(50) '$.electricVehicleType'\n    )\n    GO\n\nSELECT * FROM bronze.vw_vehicle_type\nGO\n\n\n-- Create view for \"vehicle_registration_csv\" file\nDROP VIEW IF EXISTS bronze.vw_vehicle_registration_csv\nGO\n\nCREATE VIEW bronze.vw_vehicle_registration_csv\nAS\n    SELECT\n        result.filepath(1) AS year,\n        result.filepath(2) AS month,\n        result.*\n    FROM\n        OPENROWSET(\n            BULK 'bronze/vehicle_registration_csv/year=*/month=*/*',\n            DATA_SOURCE = 'electric_vehicle_src',\n            FORMAT = 'CSV',\n            PARSER_VERSION = '2.0',\n            HEADER_ROW = TRUE\n        ) WITH(\n            vehicleId           INT,\n            locationId          SMALLINT,\n            propietaryId        TINYINT,\n            dolVehicleId        INT,\n            registrationDate    DATETIME2(7)\n        ) AS [result]\nGO\n\n\nSELECT * FROM bronze.vw_vehicle_registration_csv;\n\nSELECT COUNT(1)\nFROM bronze.vw_vehicle_registration_csv\nWHERE year = '2024' AND month = '01';\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "electric_vehicle_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
